@@ -2,11 +2,24 @@ import openai
 import numpy as np
 import pandas as pd
 import tiktoken
+import time
 
 from chroma import ChromaDatabase
 import keywords
 
-openai.api_key = "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"
+import os
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+def timeit(f):
+
+    def timed(*args, **kw):
+        ts = time.time()
+        result = f(*args, **kw)
+        te = time.time()
+        print(f"{f.__name__} took {te-ts} seconds")
+        return result
+
+    return timed
 
 class MedGPT:
     def __init__(self):
@@ -16,6 +29,7 @@ class MedGPT:
         self.query = None
         self.enc = tiktoken.get_encoding("cl100k_base")
 
+    @timeit
     def query_db(self, query, source, n=15, max_tokens=-1):
         res = self.chroma_db.query(query, source, n=n)
         texts = []
@@ -30,6 +44,7 @@ class MedGPT:
             credits = [meta['credit'] for meta in res['metadatas'][0]]
         return texts, credits
 
+    @timeit
     def create_textbook_context(self):
         best_previous_queries = sorted(self.past_knowledge, key = lambda e: e[2], reverse=True)
         extended_query = self.query
@@ -51,6 +66,7 @@ class MedGPT:
 
         return best_text, textbook_credits+dialogs_credits
 
+    @timeit
     def get_answer(self):
         if not self.query: return
         
@@ -90,3 +106,5 @@ class MedGPT:
             print(ans)
             print()
 
+
+MedGPT().run()
