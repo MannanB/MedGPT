@@ -2,15 +2,36 @@ import fitz
 from .dataparser import DataParser
 # Handbook of Signs & Symptoms
 
-HANDBOOK_PATH = "././raw_data/HandbookofSignsAndSymptoms.pdf"
-HANDBOOK_JSON_PATH = "././processed_data/handbookofsignsandsymptoms.json"
+HANDBOOK_PATH = "./raw_data/HandbookofSignsAndSymptoms.pdf"
+HANDBOOK_JSON_PATH = "./processed_data/handbookofsignsandsymptoms.json"
 
 class HandbookDataParser(DataParser):
     def __init__(self):
         super().__init__(HANDBOOK_JSON_PATH)
         self.header2page = {} # for credits
-    
-    def load_data(self):
+
+    def prepare_embedding(self):
+        for line in self.data:
+            headers = list(line.keys())
+            bigheader = headers[0]
+            for header in headers:
+                for text in line[header]['paragraphs']:
+                    # add the header to the text to increase relevance with embedding queries
+                    text_with_header = bigheader
+                    if bigheader != header:
+                        text_with_header += ' ' + header
+                    text_with_header +=  ": " + text
+                    self.embedding_text.append(text_with_header)
+                    self.documents.append(text)
+
+    def create_credits(self):
+        for line in self.data:
+            headers = list(line.keys())
+            for header in headers:
+                for text in line[header]['paragraphs']:
+                    self.credits[text] = line[header]['page']
+
+    def parse_data(self):
         self.data = []
         self.header2page = {}
 
