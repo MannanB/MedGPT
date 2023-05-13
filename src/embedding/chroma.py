@@ -37,27 +37,6 @@ class ChromaDatabase:
                                     ids=f"id{self.cur_id}")
                 self.cur_id += 1
 
-    def bootleg_openai_restore(self):
-        import json
-        path1 = "./processed_data/dialog_embeds.json"
-        path2 = "./processed_data/handbook_embeds.json"
-        with open(path1, "r") as f:
-            print("loading json..")
-            dialog_embeds = json.loads(f.read())
-            print("Loaded json..")
-        self.collection.add(documents=self.parsers[0].documents,
-                                embeddings=[dialog_embeds[doc] for doc in self.parsers[0].documents],
-                                metadatas=[{"source": ChromaDatabase.SOURCES[0], "credit": self.parsers[0].credits[doc]} for doc in self.parsers[0].documents],
-                                ids=[f"id{self.cur_id}" for self.cur_id in range(self.cur_id, self.cur_id+len(self.parsers[0].documents))])
-        with open(path2, "r") as f:
-            print("loading json..")
-            handbook_embeds = json.loads(f.read())
-            print("Loaded json..")
-        self.collection.add(documents=self.parsers[1].documents,
-                                embeddings=[handbook_embeds[doc] for doc in self.parsers[1].documents],
-                                metadatas=[{"source": ChromaDatabase.SOURCES[1], "credit": self.parsers[1].credits[doc]} for doc in self.parsers[1].documents],
-                                ids=[f"id{self.cur_id}" for self.cur_id in range(self.cur_id+1, self.cur_id+len(self.parsers[1].documents)+1)])
-        
     def query(self, query, source, n=2):
         return self.collection.query(
             query_embeddings=api.get_embedding(query),
@@ -85,5 +64,4 @@ if __name__ == "__main__":
         if chroma_db.collection.count() != 0:
             print("Database is already populated. Use --delete first if you want to re-create the database")
         else:
-            chroma_db.bootleg_openai_restore()
-            #chroma_db.add_embeddings()
+            chroma_db.add_embeddings()
