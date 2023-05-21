@@ -15,19 +15,18 @@ class ChromaDatabase:
     SOURCES = ["HealthCareMagic + iCliniq", "Handbook of Signs & Symptoms"]
 
     def __init__(self):
-        self.st_embedder = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="multi-qa-distilbert-dot-v1")
         self.client = chromadb.Client(Settings(chroma_db_impl="duckdb+parquet", persist_directory="./chroma_database"))
         self.collection = self.client.get_or_create_collection(ChromaDatabase.COLLECTION_NAME)
+        self.cur_id = 0
 
+    def load_data(self):
         self.parsers = (dialog.DialogDataParser(), handbook.HandbookDataParser())
         for parser in self.parsers:
             parser.load_data()
 
-        print(len(self.parsers[0].documents)+len(self.parsers[1].documents))
-
-        self.cur_id = 0
-
-    def add_embeddings(self):      
+    def add_embeddings(self):    
+        if len(self.parsers) == 0:
+            self.load_data()  
         for i in range(len(self.parsers)):
             for j, doc in tqdm(enumerate(self.parsers[i].documents)):
                 embed_text = self.parsers[i].embedding_text[j]

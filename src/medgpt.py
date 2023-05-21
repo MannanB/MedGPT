@@ -1,10 +1,8 @@
 
-import numpy as np
-import pandas as pd
 import tiktoken
 import time
 
-from embedding.chroma import ChromaDatabase
+from db.chroma import ChromaDatabase
 import relevance as relevance
 from ai import api
 
