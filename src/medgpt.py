@@ -111,4 +111,4 @@ class MedGPT:
             print(ans)
             print()
 
-
+MedGPT().run()
