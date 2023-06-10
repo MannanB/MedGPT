@@ -2,8 +2,7 @@ import openai
 import os
 import time
 
-openai.api_key = "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"
-
+openai.api_key = os.getenv('OPENAI_KEY')
 def get_embedding(text, model="text-embedding-ada-002"):
     result = None
     while not result:
