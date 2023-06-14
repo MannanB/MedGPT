@@ -1,6 +1,7 @@
 # MedGPT
 
-An AI medical advisor.
+An AI medical advisor. 
+** Note: These instructions are outdated. MedGPT will instead be hosted on a website, which is a work in progress.
 
 To use it, follow these steps:
 
